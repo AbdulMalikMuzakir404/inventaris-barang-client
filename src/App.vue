@@ -3,6 +3,12 @@
     <Sidebar v-if="isAuthenticated" />
     <Header v-if="isAuthenticated" />
     <Breadcrumb v-if="isAuthenticated" />
+    <Toast
+      v-if="toast.message"
+      :message="toast.message"
+      :type="toast.type"
+      :duration="toast.duration"
+    />
 
     <main :class="{ 'ml-64': isAuthenticated, 'ml-0': !isAuthenticated }" class="mt-3 p-4">
       <router-view />
@@ -11,16 +17,15 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 import Sidebar from './components/layout/Sidebar.vue'
 import Header from './components/layout/Header.vue'
 import Breadcrumb from './components/layout/Breadcrumb.vue'
+import Toast from './components/ui/Toast.vue'
 
-const isAuthenticated = ref(!!localStorage.getItem('token'))
+const store = useStore()
 
-watch(isAuthenticated, (newValue, oldValue) => {
-  if (newValue !== oldValue) {
-    console.log('Login status changed:', newValue ? 'Logged In' : 'Logged Out')
-  }
-})
+const isAuthenticated = computed(() => store.getters['auth/isLoggedIn'])
+const toast = computed(() => store.state.toast || {})
 </script>

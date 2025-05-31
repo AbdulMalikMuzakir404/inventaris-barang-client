@@ -35,13 +35,20 @@ export default {
           password: this.password,
         })
 
-        this.$router.push('/item')
+        this.$store.dispatch('toast/showToast', {
+          message: 'Login berhasil!',
+          type: 'success',
+          duration: 3000,
+        })
 
-        this.$root.$emit('show-toast', 'Login berhasil!', 'success', 3000)
+        this.$router.push('/item')
       } catch (error) {
         const message = error.response?.data?.message || 'Login gagal. Silakan coba lagi.'
-        this.$root.$emit('show-toast', message, 'error', 5000)
-        console.error(error)
+        this.$store.dispatch('toast/showToast', {
+          message,
+          type: 'error',
+          duration: 5000,
+        })
       }
     },
   },

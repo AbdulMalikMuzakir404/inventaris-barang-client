@@ -8,7 +8,6 @@ const api = axios.create({
   },
 })
 
-// Request Interceptor
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
@@ -20,7 +19,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error),
 )
 
-// Response Interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -43,13 +41,12 @@ api.interceptors.response.use(
   },
 )
 
-// ✅ Fungsi validasi token
 export async function validateToken() {
   const token = localStorage.getItem('token')
   if (!token) return false
 
   try {
-    const res = await api.get('/auth/me') // ← pastikan backend punya endpoint ini
+    const res = await api.get('/auth/me')
     return !!res.data
   } catch (err) {
     localStorage.removeItem('token')

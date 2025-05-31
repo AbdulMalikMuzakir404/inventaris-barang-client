@@ -53,6 +53,7 @@
         <thead class="bg-gray-100 text-gray-600 text-xs uppercase">
           <tr>
             <th class="px-6 py-3">No</th>
+            <th class="px-4 py-2">Cover</th>
             <th class="px-6 py-3">Nama</th>
             <th class="px-6 py-3">Kategori</th>
             <th class="px-6 py-3">Stok</th>
@@ -68,6 +69,17 @@
             class="hover:bg-gray-50 border-t transition"
           >
             <td class="px-6 py-3">{{ index + 1 + (page - 1) * perPage }}</td>
+            <td class="px-4 py-2">
+              <img
+                :src="
+                  item.cover
+                    ? item.cover
+                    : 'https://ui-avatars.com/api/?name=Item&background=E5E7EB&color=111827&size=6'
+                "
+                alt="cover"
+                class="w-10 h-10 object-cover rounded-full border"
+              />
+            </td>
             <td class="px-6 py-3 font-medium text-gray-900">{{ item.nama }}</td>
             <td class="px-6 py-3">{{ item.kategori?.nama || '-' }}</td>
             <td class="px-6 py-3">{{ item.stok }}</td>

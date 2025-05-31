@@ -23,7 +23,6 @@
 import { useRoute } from 'vue-router'
 import { h } from 'vue'
 
-// SVG icon components inline (bisa nanti pisah juga ke file icon.js jika mau)
 const BoxIcon = {
   render() {
     return h(

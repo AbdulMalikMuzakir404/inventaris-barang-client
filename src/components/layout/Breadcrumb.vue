@@ -8,7 +8,6 @@
             class="text-blue-600 hover:underline capitalize flex items-center gap-1"
           >
             <template v-if="crumb.label === 'Home'">
-              <!-- Home Icon -->
               <svg
                 class="w-4 h-4"
                 fill="none"
@@ -63,7 +62,6 @@ function mapLabel(str) {
     item: 'Barang',
     category: 'Kategori',
     list: 'Daftar',
-    // tambah mapping di sini jika perlu
   }
   return labelMap[str] || capitalize(str)
 }

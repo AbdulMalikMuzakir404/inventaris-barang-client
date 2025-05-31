@@ -1,30 +1,62 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-      <h2 class="text-xl font-semibold mb-4">{{ form.id ? 'Edit Barang' : 'Tambah Barang' }}</h2>
-      <form @submit.prevent="handleSubmit">
-        <div class="mb-4">
-          <label class="block text-sm font-medium">Nama</label>
-          <input v-model="form.nama" type="text" class="w-full border rounded p-2" required />
+  <div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl p-6 space-y-6">
+      <h2 class="text-2xl font-bold text-gray-800 border-b pb-2">
+        {{ form.id ? 'Edit Barang' : 'Tambah Barang' }}
+      </h2>
+
+      <form @submit.prevent="handleSubmit" class="space-y-5">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Barang</label>
+          <input
+            v-model="form.nama"
+            type="text"
+            placeholder="Contoh: Meja Kayu"
+            class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
         </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium">Kategori</label>
-          <select v-model="form.kategoriId" class="w-full border rounded p-2" required>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Kategori</label>
+          <select
+            v-model="form.kategoriId"
+            required
+            class="w-full appearance-none border border-gray-300 rounded-lg p-3 pr-10 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
             <option value="" disabled selected>Pilih Kategori</option>
             <option v-for="kat in categories" :key="kat.id" :value="kat.id">
               {{ kat.nama }}
             </option>
           </select>
         </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium">Stok</label>
-          <input v-model="form.stok" type="number" class="w-full border rounded p-2" required />
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Stok</label>
+          <input
+            v-model="form.stok"
+            type="number"
+            placeholder="0"
+            min="0"
+            class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
         </div>
-        <div class="flex justify-end gap-2">
-          <button type="button" @click="$emit('close')" class="px-4 py-2 rounded bg-gray-200">
+
+        <div class="flex justify-end gap-3 pt-4 border-t mt-6">
+          <button
+            type="button"
+            @click="$emit('close')"
+            class="px-5 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+          >
             Batal
           </button>
-          <button type="submit" class="px-4 py-2 rounded bg-blue-500 text-white">Simpan</button>
+          <button
+            type="submit"
+            class="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+          >
+            Simpan
+          </button>
         </div>
       </form>
     </div>
@@ -59,12 +91,32 @@ watch(
 )
 
 const handleSubmit = async () => {
-  if (form.id) {
-    await store.dispatch('item/updateItem', { ...form })
-  } else {
-    await store.dispatch('item/createItem', { ...form })
+  try {
+    if (form.id) {
+      await store.dispatch('item/updateItem', { ...form })
+      store.dispatch('toast/showToast', {
+        message: 'Item berhasil diperbarui',
+        type: 'success',
+        duration: 3000,
+      })
+    } else {
+      await store.dispatch('item/createItem', { ...form })
+      store.dispatch('toast/showToast', {
+        message: 'Item berhasil ditambahkan',
+        type: 'success',
+        duration: 3000,
+      })
+    }
+    emit('close')
+  } catch (error) {
+    const message = error.response?.data?.message || 'Gagal menyimpan item'
+    store.dispatch('toast/showToast', {
+      message,
+      type: 'error',
+      duration: 4000,
+    })
+    console.error('Submit Error:', error)
   }
-  emit('close')
 }
 
 onMounted(() => {

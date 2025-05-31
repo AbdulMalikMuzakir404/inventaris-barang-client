@@ -58,23 +58,39 @@ export default {
 
     async createItem({ dispatch }, payload) {
       try {
-        const res = await api.post('/item', payload)
+        const res = await api.post('/item', payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+
         if (res.data.success) {
           await dispatch('fetchItems')
         }
+
+        return res.data
       } catch (err) {
         console.error('Gagal menambahkan barang:', err)
+        throw err
       }
     },
 
-    async updateItem({ dispatch }, payload) {
+    async updateItem({ dispatch }, { id, data }) {
       try {
-        const res = await api.put(`/item/${payload.id}`, payload)
+        const res = await api.put(`/item/${id}`, data, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+
         if (res.data.success) {
           await dispatch('fetchItems')
         }
+
+        return res.data
       } catch (err) {
         console.error('Gagal memperbarui barang:', err)
+        throw err
       }
     },
 

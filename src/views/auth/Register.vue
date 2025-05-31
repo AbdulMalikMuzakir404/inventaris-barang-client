@@ -1,90 +1,136 @@
 <template>
-  <div class="max-w-sm mx-auto mt-10">
-    <form @submit.prevent="register">
-      <div class="mb-4">
-        <label for="nama" class="block">Nama</label>
-        <input v-model="form.nama" type="text" id="nama" class="w-full p-2 border rounded" />
+  <div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div class="bg-white shadow-xl rounded-2xl w-full max-w-sm p-8 space-y-6">
+      <div class="text-center">
+        <h1 class="text-2xl font-bold text-gray-800">Daftar Akun</h1>
+        <p class="text-sm text-gray-500 mt-1">Silakan isi form untuk membuat akun baru</p>
       </div>
-      <div class="mb-4">
-        <label for="username" class="block">Username</label>
-        <input
-          v-model="form.username"
-          type="text"
-          id="username"
-          class="w-full p-2 border rounded"
-        />
-      </div>
-      <div class="mb-4">
-        <label for="email" class="block">Email</label>
-        <input v-model="form.email" type="email" id="email" class="w-full p-2 border rounded" />
-      </div>
-      <div class="mb-4">
-        <label for="password" class="block">Password</label>
-        <input
-          v-model="form.password"
-          type="password"
-          id="password"
-          class="w-full p-2 border rounded"
-        />
-      </div>
-      <div class="mb-4">
-        <label for="confirmPassword" class="block">Konfirmasi Password</label>
-        <input
-          v-model="form.confirmPassword"
-          type="password"
-          id="confirmPassword"
-          class="w-full p-2 border rounded"
-        />
-      </div>
-      <button type="submit" class="w-full p-2 bg-blue-500 text-white rounded">Register</button>
-    </form>
 
-    <p class="mt-4 text-center text-sm text-gray-600">
-      Sudah punya akun?
-      <router-link to="/login" class="text-blue-500 hover:underline">Login di sini</router-link>
-    </p>
+      <form @submit.prevent="register" class="space-y-4">
+        <div>
+          <label for="nama" class="block text-sm font-medium text-gray-700">Nama</label>
+          <input
+            v-model="form.nama"
+            id="nama"
+            type="text"
+            placeholder="Nama lengkap"
+            class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+          <input
+            v-model="form.username"
+            id="username"
+            type="text"
+            placeholder="Username unik"
+            class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+          <input
+            v-model="form.email"
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input
+            v-model="form.password"
+            id="password"
+            type="password"
+            placeholder="******"
+            class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label for="confirmPassword" class="block text-sm font-medium text-gray-700"
+            >Konfirmasi Password</label
+          >
+          <input
+            v-model="form.confirmPassword"
+            id="confirmPassword"
+            type="password"
+            placeholder="Ulangi password"
+            class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+        >
+          Daftar
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-gray-600">
+        Sudah punya akun?
+        <router-link to="/login" class="text-blue-500 hover:underline">Login di sini</router-link>
+      </p>
+    </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import api from '@/utils/axios'
 
-export default {
-  data() {
-    return {
-      form: {
-        nama: '',
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-      },
-    }
-  },
-  methods: {
-    async register() {
-      if (this.form.password !== this.form.confirmPassword) {
-        this.$emit('show-toast', 'Password dan konfirmasi tidak cocok', 'error', 5000)
-        return
-      }
+const router = useRouter()
+const store = useStore()
 
-      try {
-        const response = await api.post('/auth/register', {
-          nama: this.form.nama,
-          username: this.form.username,
-          email: this.form.email,
-          password: this.form.password,
-          confirmPassword: this.form.confirmPassword,
-        })
+const form = reactive({
+  nama: '',
+  username: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+})
 
-        this.$emit('show-toast', 'Registrasi berhasil!', 'success', 3000)
-        this.$router.push('/login')
-      } catch (error) {
-        console.error(error)
-        const message = error.response?.data?.message || 'Registrasi gagal. Silakan coba lagi.'
-        this.$emit('show-toast', message, 'error', 5000)
-      }
-    },
-  },
+const register = async () => {
+  if (form.password !== form.confirmPassword) {
+    store.dispatch('toast/showToast', {
+      message: 'Password dan konfirmasi tidak cocok',
+      type: 'error',
+      duration: 4000,
+    })
+    return
+  }
+
+  try {
+    await api.post('/auth/register', {
+      nama: form.nama,
+      username: form.username,
+      email: form.email,
+      password: form.password,
+      confirmPassword: form.confirmPassword,
+    })
+
+    store.dispatch('toast/showToast', {
+      message: 'Registrasi berhasil! Silakan login.',
+      type: 'success',
+      duration: 3000,
+    })
+
+    router.push('/login')
+  } catch (error) {
+    const message = error.response?.data?.message || 'Registrasi gagal. Silakan coba lagi.'
+    store.dispatch('toast/showToast', {
+      message,
+      type: 'error',
+      duration: 4000,
+    })
+    console.error('Register Error:', error)
+  }
 }
 </script>

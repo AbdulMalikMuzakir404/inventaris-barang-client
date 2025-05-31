@@ -1,8 +1,12 @@
 <template>
   <div>
+    <!-- Sidebar tetap fixed -->
     <Sidebar v-if="isAuthenticated" />
+
+    <!-- Header tetap fixed -->
     <Header v-if="isAuthenticated" />
-    <Breadcrumb v-if="isAuthenticated" />
+
+    <!-- Toast floating -->
     <Toast
       v-if="toast.message"
       :message="toast.message"
@@ -10,7 +14,10 @@
       :duration="toast.duration"
     />
 
-    <main :class="{ 'ml-64': isAuthenticated, 'ml-0': !isAuthenticated }" class="mt-3 p-4">
+    <!-- Main Content -->
+    <main :class="[isAuthenticated ? 'ml-64 pt-16' : 'ml-0', 'p-4']">
+      <!-- Breadcrumb sekarang akan terlihat -->
+      <Breadcrumb v-if="isAuthenticated" />
       <router-view />
     </main>
   </div>

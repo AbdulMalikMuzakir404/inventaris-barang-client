@@ -3,10 +3,35 @@
     class="fixed top-0 left-64 right-0 h-16 bg-white border-b shadow-sm flex items-center justify-between px-6 z-30"
   >
     <h1 class="text-xl font-bold text-gray-800">Dashboard</h1>
+
     <div class="flex items-center gap-4">
       <span class="text-sm text-gray-600">
         👋 Selamat datang, <strong>{{ userName }}</strong>
       </span>
+
+      <!-- Tombol ke halaman profil -->
+      <router-link
+        to="/profile"
+        class="inline-flex items-center gap-2 px-4 py-1.5 text-sm bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M5.121 17.804A13.937 13.937 0 0112 16c2.21 0 4.29.534 6.121 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"
+          />
+        </svg>
+        Profil
+      </router-link>
+
+      <!-- Tombol logout -->
       <button
         @click="handleLogout"
         class="inline-flex items-center gap-2 px-4 py-1.5 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition"

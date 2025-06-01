@@ -84,7 +84,6 @@
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import api from '@/utils/axios'
 
 const router = useRouter()
 const store = useStore()
@@ -108,7 +107,7 @@ const register = async () => {
   }
 
   try {
-    await api.post('/auth/register', {
+    await store.dispatch('auth/register', {
       nama: form.nama,
       username: form.username,
       email: form.email,
@@ -124,7 +123,7 @@ const register = async () => {
 
     router.push('/login')
   } catch (error) {
-    const message = error.response?.data?.message || 'Registrasi gagal. Silakan coba lagi.'
+    const message = store.getters['auth/authError'] || 'Registrasi gagal. Silakan coba lagi.'
     store.dispatch('toast/showToast', {
       message,
       type: 'error',

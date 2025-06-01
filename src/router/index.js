@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import Login from '../views/auth/Login.vue'
 import Register from '../views/auth/Register.vue'
+import Profile from '../views/auth/Profile.vue'
 import Item from '../views/item/ItemList.vue'
 import Category from '../views/category/CategoryList.vue'
 
@@ -24,6 +25,12 @@ const router = createRouter({
       name: 'Register',
       component: Register,
       meta: { requiresGuest: true },
+    },
+    {
+      path: '/profile',
+      name: 'Profile',
+      component: Profile,
+      meta: { requiresAuth: true },
     },
     {
       path: '/item',

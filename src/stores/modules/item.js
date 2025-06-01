@@ -1,4 +1,3 @@
-// File: src/store/modules/item.js
 import api from '@/utils/axios'
 
 export default {

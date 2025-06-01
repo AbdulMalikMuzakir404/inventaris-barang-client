@@ -1,4 +1,3 @@
-// File: src/store/modules/category.js
 import api from '@/utils/axios'
 
 export default {

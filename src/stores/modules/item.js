@@ -9,6 +9,7 @@ export default {
     limit: 10,
     totalPages: 1,
     currentItem: null,
+    q: '',
   }),
 
   mutations: {
@@ -21,6 +22,11 @@ export default {
     },
     SET_CURRENT_ITEM(state, item) {
       state.currentItem = item
+    },
+    SET_PARAMS(state, { page, limit, q }) {
+      state.page = page
+      state.limit = limit
+      state.q = q
     },
   },
 
@@ -36,6 +42,7 @@ export default {
         })
         if (res.data.success) {
           commit('SET_ITEMS', res.data)
+          commit('SET_PARAMS', { page, limit, q })
         }
       } catch (err) {
         console.error('Gagal mengambil semua barang:', err)
@@ -55,18 +62,18 @@ export default {
       }
     },
 
-    async createItem({ dispatch }, payload) {
+    async createItem({ dispatch, state }, payload) {
       try {
         const res = await api.post('/item', payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: { 'Content-Type': 'multipart/form-data' },
         })
-
         if (res.data.success) {
-          await dispatch('fetchItems')
+          await dispatch('fetchItems', {
+            page: state.page,
+            limit: state.limit,
+            q: state.q,
+          })
         }
-
         return res.data
       } catch (err) {
         console.error('Gagal menambahkan barang:', err)
@@ -74,18 +81,18 @@ export default {
       }
     },
 
-    async updateItem({ dispatch }, { id, data }) {
+    async updateItem({ dispatch, state }, { id, data }) {
       try {
         const res = await api.put(`/item/${id}`, data, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: { 'Content-Type': 'multipart/form-data' },
         })
-
         if (res.data.success) {
-          await dispatch('fetchItems')
+          await dispatch('fetchItems', {
+            page: state.page,
+            limit: state.limit,
+            q: state.q,
+          })
         }
-
         return res.data
       } catch (err) {
         console.error('Gagal memperbarui barang:', err)
@@ -93,14 +100,65 @@ export default {
       }
     },
 
-    async deleteItem({ dispatch }, id) {
+    async deleteItem({ dispatch, state }, id) {
       try {
         const res = await api.delete(`/item/${id}`)
         if (res.data.success) {
-          await dispatch('fetchItems')
+          await dispatch('fetchItems', {
+            page: state.page,
+            limit: state.limit,
+            q: state.q,
+          })
         }
       } catch (err) {
         console.error('Gagal menghapus barang:', err)
+      }
+    },
+
+    async importItems({ dispatch, state }, formData) {
+      try {
+        await api.post('/item-ei/import', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+
+        await dispatch('fetchItems', {
+          page: state.page,
+          limit: state.limit,
+          q: state.q,
+        })
+      } catch (error) {
+        console.error('Import gagal:', error)
+        throw error
+      }
+    },
+
+    async exportItems({ state }, searchQuery = '') {
+      try {
+        const res = await api.post('/item-ei/export', { q: searchQuery })
+
+        if (!res.data?.success || !res.data?.jobId) {
+          throw new Error('Response tidak valid atau jobId tidak ditemukan.')
+        }
+
+        const { jobId } = res.data
+
+        const poll = setInterval(async () => {
+          try {
+            const statusRes = await api.get(`/item-ei/export/status/${jobId}`)
+            const { success, state: jobState, data } = statusRes.data
+
+            if (success && jobState === 'completed' && data?.downloadUrl) {
+              clearInterval(poll)
+              window.open(data.downloadUrl, '_blank')
+            }
+          } catch (err) {
+            console.error('Polling status export gagal:', err)
+            clearInterval(poll)
+          }
+        }, 2000)
+      } catch (error) {
+        console.error('Export gagal:', error)
+        throw error
       }
     },
   },

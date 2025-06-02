@@ -7,16 +7,14 @@
         @click="openForm(null)"
         class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 transition"
       >
-        <!-- Plus Icon -->
-        <svg
-          class="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M12 4V20M4 12H20"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
         Tambah Baru
       </button>
@@ -47,6 +45,22 @@
       </div>
     </div>
 
+    <!-- Export & Import -->
+    <div class="flex gap-2 mb-4">
+      <button
+        @click="handleExport"
+        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm"
+      >
+        📤 Export
+      </button>
+      <button
+        @click="showImportModal = true"
+        class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition text-sm"
+      >
+        📥 Import
+      </button>
+    </div>
+
     <!-- Table -->
     <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
       <table class="min-w-full text-sm text-left text-gray-700">
@@ -71,11 +85,7 @@
             <td class="px-6 py-3">{{ index + 1 + (page - 1) * perPage }}</td>
             <td class="px-4 py-2">
               <img
-                :src="
-                  item.cover
-                    ? item.cover
-                    : 'https://ui-avatars.com/api/?name=Item&background=E5E7EB&color=111827&size=6'
-                "
+                :src="item.cover ? item.cover : 'https://ui-avatars.com/api/?name=Item'"
                 alt="cover"
                 class="w-10 h-10 object-cover rounded-full border"
               />
@@ -86,53 +96,22 @@
             <td class="px-6 py-3">{{ formatDateTime(item.createdAt) }}</td>
             <td class="px-6 py-3">{{ formatDateTime(item.updatedAt) }}</td>
             <td class="px-6 py-3 flex items-center gap-3">
-              <!-- Edit Button -->
               <button
                 @click="openForm(item)"
-                class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium transition"
+                class="text-blue-600 hover:text-blue-800 font-medium transition"
               >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 16H9v-2.828z"
-                  />
-                </svg>
                 Edit
               </button>
-
-              <!-- Delete Button -->
               <button
                 @click="confirmDelete(item)"
-                class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 font-medium transition"
+                class="text-red-600 hover:text-red-800 font-medium transition"
               >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0a2 2 0 00-2-2H9a2 2 0 00-2 2h10z"
-                  />
-                </svg>
                 Hapus
               </button>
             </td>
           </tr>
           <tr v-if="items.length === 0">
-            <td colspan="7" class="text-center text-gray-500 py-6">Tidak ada data ditemukan.</td>
+            <td colspan="8" class="text-center text-gray-500 py-6">Tidak ada data ditemukan.</td>
           </tr>
         </tbody>
       </table>
@@ -148,14 +127,14 @@
           <button
             :disabled="page === 1"
             @click="goToPage(page - 1)"
-            class="px-3 py-1 border rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-3 py-1 border rounded-lg hover:bg-gray-100 disabled:opacity-50"
           >
             ⬅ Sebelumnya
           </button>
           <button
             :disabled="page === totalPages"
             @click="goToPage(page + 1)"
-            class="px-3 py-1 border rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-3 py-1 border rounded-lg hover:bg-gray-100 disabled:opacity-50"
           >
             Selanjutnya ➡
           </button>
@@ -171,24 +150,25 @@
       @close="cancelDelete"
       @confirm="deleteItem"
     />
+    <ImportModal v-if="showImportModal" @close="showImportModal = false" />
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import ItemForm from './ItemForm.vue'
 import ItemDeleteConfirm from './ItemDeleteConfirm.vue'
+import ImportModal from './ImportModal.vue'
 import { formatDateTime } from '@/utils/dateFormat'
 
 const store = useStore()
-
 const search = ref('')
 const page = ref(1)
 const perPage = ref(10)
-
 const showForm = ref(false)
 const showDeleteConfirm = ref(false)
+const showImportModal = ref(false)
 const selectedItem = ref(null)
 
 const items = computed(() => store.state.item.items)
@@ -196,36 +176,16 @@ const total = computed(() => store.state.item.total)
 const totalPages = computed(() => store.state.item.totalPages)
 
 const fetchData = async () => {
-  const trimmed = search.value.trim()
-  const query = trimmed.length > 0 ? trimmed : ''
-
+  const q = search.value.trim()
   try {
-    await store.dispatch('item/fetchItems', {
-      page: page.value,
-      limit: perPage.value,
-      q: query,
-    })
-
-    if (items.value.length === 0) {
-      store.dispatch('toast/showToast', {
-        message: query ? 'Data tidak ditemukan' : 'Data kosong',
-        type: 'info',
-        duration: 3000,
-      })
-    }
-  } catch (error) {
+    await store.dispatch('item/fetchItems', { page: page.value, limit: perPage.value, q })
+  } catch (err) {
     store.dispatch('toast/showToast', {
       message: 'Gagal memuat data',
       type: 'error',
       duration: 3000,
     })
-    console.error('Fetch Error:', error)
   }
-}
-
-const onSearch = () => {
-  page.value = 1
-  fetchData()
 }
 
 const openForm = (item) => {
@@ -245,37 +205,28 @@ const confirmDelete = (item) => {
 }
 
 const cancelDelete = () => {
-  showDeleteConfirm.value = false
   selectedItem.value = null
+  showDeleteConfirm.value = false
 }
 
 const deleteItem = async () => {
   if (!selectedItem.value) return
+  await store.dispatch('item/deleteItem', selectedItem.value.id)
+  cancelDelete()
+  fetchData()
+}
 
-  try {
-    await store.dispatch('item/deleteItem', selectedItem.value.id)
+const onSearch = () => {
+  page.value = 1
+  fetchData()
+}
 
-    store.dispatch('toast/showToast', {
-      message: 'Item berhasil dihapus',
-      type: 'success',
-      duration: 3000,
-    })
-
-    showDeleteConfirm.value = false
-    selectedItem.value = null
-    fetchData()
-  } catch (error) {
-    store.dispatch('toast/showToast', {
-      message: 'Gagal menghapus item',
-      type: 'error',
-      duration: 3000,
-    })
-    console.error('Delete Error:', error)
-  }
+const handleExport = async () => {
+  await store.dispatch('item/exportItems', search.value)
 }
 
 const goToPage = (p) => {
-  if (p !== page.value && p >= 1 && p <= totalPages.value) {
+  if (p >= 1 && p <= totalPages.value) {
     page.value = p
     fetchData()
   }
@@ -285,12 +236,12 @@ watch(perPage, () => {
   page.value = 1
   fetchData()
 })
-
 watch(search, (val) => {
-  if (val.trim() === '') {
-    onSearch()
-  }
+  if (val.trim() === '') onSearch()
 })
-
 onMounted(fetchData)
 </script>
+
+<style scoped>
+/* Tambahkan style tambahan jika diperlukan */
+</style>
